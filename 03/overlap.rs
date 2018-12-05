@@ -66,6 +66,11 @@ impl<'a> Rect<'a>
         self.pos.y + self.size.y - 1
     }
 
+    pub fn area(&self) -> i32
+    {
+        self.size.x * self.size.y
+    }
+
     pub fn iter(&self) -> RectIter<'a>
     {
         RectIter::new(*self)
@@ -98,15 +103,16 @@ impl<'a> Iterator for RectIter<'a>
 
     fn next(&mut self) -> Option<Point>
     {
+        if self.cur.y > self.bounds.bottom() {
+            return None;
+        }
+        let result = self.cur;
         self.cur.x += 1;
-        if self.cur.x >= self.bounds.right() {
+        if self.cur.x > self.bounds.right() {
             self.cur.x = self.bounds.pos.x;
             self.cur.y += 1;
-            if self.cur.y >= self.bounds.bottom() {
-                return None;
-            }
         }
-        Some(self.cur)
+        Some(result)
     }
 }
 
@@ -137,13 +143,20 @@ fn main() -> io::Result<()>
 {
     let input = read_input()?;
     let mut fabric = HashMap::new();
+    let mut area = 0;
+    let mut noverlaps = 0;
     for line in input.lines() {
-        // println!("{}", line);
         let rect = read_rect(line);
-        // println!("{:?}", rect);
+        area += rect.area();
+        println!("{} -> {}", line, area);
         for p in rect.iter() {
+            // println!("mark {:?}", p);
             let num = fabric.entry(p).or_insert(0);
             *num += 1;
+            if *num == 2 {
+                // println!("overlap {:?}", p);
+                noverlaps += 1;
+            }
         }
     }
     // println!("{:?}", fabric);
@@ -154,5 +167,6 @@ fn main() -> io::Result<()>
         })
         .collect();
     println!("{}", overlaps.len());
+    println!("{}", noverlaps);
     Ok(())
 }
