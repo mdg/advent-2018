@@ -1,5 +1,5 @@
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{self, Read};
 use std::default::Default;
@@ -142,31 +142,39 @@ fn read_rect(input: &str) -> Rect
 fn main() -> io::Result<()>
 {
     let input = read_input()?;
+    let mut ids = HashSet::new();
     let mut fabric = HashMap::new();
-    let mut area = 0;
     let mut noverlaps = 0;
     for line in input.lines() {
         let rect = read_rect(line);
-        area += rect.area();
-        println!("{} -> {}", line, area);
+        ids.insert(rect.id);
+        // println!("{} -> {}", line, area);
         for p in rect.iter() {
             // println!("mark {:?}", p);
-            let num = fabric.entry(p).or_insert(0);
-            *num += 1;
-            if *num == 2 {
+            let overlap_claims: &mut Vec<&str> =
+                fabric.entry(p).or_insert(Vec::new());
+            overlap_claims.push(rect.id);
+            if overlap_claims.len() == 2 {
                 // println!("overlap {:?}", p);
                 noverlaps += 1;
             }
         }
     }
     // println!("{:?}", fabric);
-    let overlaps: Vec<(Point, i32)> = fabric
+    let overlaps: Vec<(Point, Vec<&str>)> = fabric
         .into_iter()
         .filter(|si| {
-            si.1 > 1
+            si.1.len() > 1
         })
         .collect();
+    for o in overlaps.iter() {
+        for id in o.1.iter() {
+            ids.remove(id);
+        }
+    }
     println!("{}", overlaps.len());
     println!("{}", noverlaps);
+    println!("ids len: {}", ids.len());
+    println!("first id: {}", ids.iter().next().unwrap());
     Ok(())
 }
