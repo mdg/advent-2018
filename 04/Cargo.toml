@@ -1,0 +1,12 @@
+[package]
+name = "guards"
+version = "0.1.0"
+authors = ["Matthew Graham <mdg149@gmail.com>"]
+
+[dependencies]
+regex = "1"
+lazy_static = "1.2"
+
+[[bin]]
+name = "guards"
+path = "guards.rs"
