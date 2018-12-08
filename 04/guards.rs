@@ -95,7 +95,9 @@ struct Guard
 {
     id: i32,
     total: i32,
-    sleeps: Vec<i16>,
+    highest_sleep: i32,
+    highest_minute: i16,
+    sleeps: Vec<i32>,
 }
 
 impl Guard
@@ -105,6 +107,8 @@ impl Guard
         Guard {
             id: s.id,
             total: 0,
+            highest_sleep: 0,
+            highest_minute: 0,
             sleeps: vec![0; 60],
         }
     }
@@ -113,6 +117,10 @@ impl Guard
     {
         for i in s.range() {
             self.sleeps[i] += 1;
+            if self.sleeps[i] > self.highest_sleep {
+                self.highest_sleep = self.sleeps[i];
+                self.highest_minute = i as i16;
+            }
         }
         self.total += s.duration();
     }
@@ -178,8 +186,18 @@ fn main() -> io::Result<()>
             acc
         }
     });
-
-    println!("sleepiest: {:?}", sleepiest);
+    println!("sleepiest guard: {:?}", sleepiest);
     println!("answer: {}", sleepiest.0 * sleepiest.1);
+
+    let sleepy_guard = guards.values().fold((0, 0, 0), |acc, g| {
+        if g.highest_sleep > acc.2 {
+            (g.id, g.highest_minute as i32, g.highest_sleep)
+        } else {
+            acc
+        }
+    });
+    println!("sleepiest guard minute: {:?}", sleepy_guard);
+    println!("answer: {}", sleepy_guard.0 * sleepy_guard.1);
+
     Ok(())
 }
