@@ -83,12 +83,18 @@ impl Sleep
         let second = self.wake as usize;
         first..second
     }
+
+    pub fn duration(&self) -> i32
+    {
+        (self.wake - self.sleep) as i32
+    }
 }
 
 #[derive(Debug)]
 struct Guard
 {
     id: i32,
+    total: i32,
     sleeps: Vec<i16>,
 }
 
@@ -98,6 +104,7 @@ impl Guard
     {
         Guard {
             id: s.id,
+            total: 0,
             sleeps: vec![0; 60],
         }
     }
@@ -107,6 +114,22 @@ impl Guard
         for i in s.range() {
             self.sleeps[i] += 1;
         }
+        self.total += s.duration();
+    }
+
+    pub fn sleepiest_minute(&self) -> i16
+    {
+        let sleepiest = self.sleeps
+            .iter()
+            .enumerate()
+            .fold((0, -1), |max, minute| {
+                if *minute.1 > max.1 {
+                    (minute.0, *minute.1)
+                } else {
+                    max
+                }
+            });
+        sleepiest.0 as i16
     }
 }
 
@@ -147,5 +170,15 @@ fn main() -> io::Result<()>
         g.add_sleep(s);
     }
 
+    let sleepiest = guards.values().fold((0, 0, -1), |acc, g| {
+        if g.total > acc.1 {
+            (g.id, g.sleepiest_minute().into(), g.total)
+        } else {
+            acc
+        }
+    });
+
+    println!("sleepiest: {:?}", sleepiest);
+    println!("answer: {}", sleepiest.0 * sleepiest.1);
     Ok(())
 }
