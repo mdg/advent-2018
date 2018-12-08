@@ -171,7 +171,8 @@ fn main() -> io::Result<()>
     }
 
     let sleepiest = guards.values().fold((0, 0, -1), |acc, g| {
-        if g.total > acc.1 {
+        if g.total > acc.2 {
+            println!("guard {} is sleepier: {:?} > {:?}", g.id, g.total, acc);
             (g.id, g.sleepiest_minute().into(), g.total)
         } else {
             acc
