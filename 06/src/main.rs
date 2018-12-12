@@ -40,21 +40,24 @@ fn find_grid(points: &Vec<(i16, i16)>) -> (i16, i16)
     (max_x, max_y)
 }
 
-fn make_grid(points: &Vec<(i16, i16)>, def: (i16, i16)) -> Vec<Vec<(i16, i16)>>
+fn make_grid(bounds: (i16, i16), def: (i16, i16)) -> Vec<Vec<(i16, i16)>>
 {
-    let max_x: usize = points.last().unwrap().0 as usize + 1;
-    let max_y: usize = points
-        .iter()
-        .fold(0, |acc, p| {
-            cmp::max(acc, p.1)
-        }) as usize + 1;
-    println!("grid: {}, {}", max_x, max_y);
+    let max_x: usize = bounds.0 as usize;
+    let max_y: usize = bounds.1 as usize;
     vec![vec![def; max_x]; max_y]
 }
 
 fn assign_grid(grid_bounds: (i16, i16), points: &Vec<(i16, i16)>) -> Vec<Vec<(i16, i16)>>
 {
-    j
+    let mut grid = make_grid(grid_bounds, *points.first().unwrap());
+    let open_points = vec![];
+    // let closed_points = vec![];
+    for x in 0..grid_bounds.0 {
+        for y in 0..grid_bounds.1 {
+            println!("{},{}", x, y);
+        }
+    }
+    grid
 }
 
 fn main() -> io::Result<()>
@@ -69,7 +72,9 @@ fn main() -> io::Result<()>
 
     let grid_bounds = find_grid(&points);
     println!("grid bounds: {:?}", grid_bounds);
-    let grid = make_grid(&points, *points.first().unwrap());
+
+    let grid = assign_grid(grid_bounds, &points);
+    // println!("grids: {:?}", grid);
 
     Ok(())
 }
